@@ -6,8 +6,8 @@
 <title>초대합니다 · 몸 만 오 세 요</title>
 <style>
   @font-face {
-    font-family: 'JoseonPalace';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGs.woff') format('woff');
+    font-family: 'JoseonBoldMyongjo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunKm.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -17,11 +17,11 @@
 
   html, body {
     height: 100%;
-    background: #ffffff;
+    background: #E0FFD9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'JoseonPalace', 'Batang', serif;
+    font-family: 'JoseonBoldMyongjo', 'Batang', serif;
     cursor: none;
   }
 
@@ -29,7 +29,8 @@
     position: relative;
     width: 360px;
     height: 521px;
-    background: #ffffff;
+    background: #E0FFD9;
+    transform: translateY(-20px);
   }
 
   /* Each heart group */
@@ -108,7 +109,7 @@
     width: 24px;
     height: 24px;
     pointer-events: none;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, calc(-50% - 8px));
     z-index: 9999;
   }
 
@@ -123,6 +124,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 220px 220px;
     animation: grainJitter 0.24s steps(2) infinite;
+    transition: opacity 160ms ease, background-size 160ms ease, filter 160ms ease;
   }
 
   .location-btn::after {
@@ -156,6 +158,7 @@
         rgba(255, 255, 255, 0) 27px
       );
     animation: scratchDrift 2.2s linear infinite;
+    transition: opacity 160ms ease, filter 160ms ease;
   }
 
   .location-btn .texture-tint {
@@ -200,20 +203,15 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    -webkit-mask-image: radial-gradient(
-      circle 38px at var(--mx, -100px) var(--my, -100px),
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 52%,
-      rgba(0, 0, 0, 0) 100%
-    );
-    mask-image: radial-gradient(
-      circle 38px at var(--mx, -100px) var(--my, -100px),
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 52%,
-      rgba(0, 0, 0, 0) 100%
-    );
     transition: none;
     user-select: none;
+  }
+
+  .scratch-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
   }
 
   @keyframes grainJitter {
@@ -282,6 +280,7 @@
   <div class="location-btn">
     <div class="texture-tint"></div>
     <span>서울특별시 강서구 염창동</span>
+    <canvas class="scratch-mask" aria-hidden="true"></canvas>
   </div>
 
 </div>
@@ -290,26 +289,90 @@
 
 <script>
   const btn = document.querySelector('.location-btn');
-  const span = btn.querySelector('span');
   const cursorPointer = document.querySelector('.cursor-pointer');
+  const scratchMask = btn.querySelector('.scratch-mask');
+  const scratchCtx = scratchMask.getContext('2d');
+  let isScratching = false;
+  let lastPoint = null;
+
+  function resizeScratchMask() {
+    const dpr = window.devicePixelRatio || 1;
+    const width = btn.clientWidth;
+    const height = btn.clientHeight;
+    scratchMask.width = Math.max(1, Math.floor(width * dpr));
+    scratchMask.height = Math.max(1, Math.floor(height * dpr));
+    scratchMask.style.width = width + 'px';
+    scratchMask.style.height = height + 'px';
+    scratchCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintScratchMask(width, height);
+  }
+
+  function paintScratchMask(width, height) {
+    scratchCtx.globalCompositeOperation = 'source-over';
+    scratchCtx.clearRect(0, 0, width, height);
+    scratchCtx.fillStyle = '#0a0a0a';
+    scratchCtx.fillRect(0, 0, width, height);
+
+    for (let i = 0; i < 2800; i += 1) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const alpha = 0.04 + Math.random() * 0.16;
+      const gray = 120 + Math.floor(Math.random() * 80);
+      scratchCtx.fillStyle = 'rgba(' + gray + ',' + gray + ',' + gray + ',' + alpha + ')';
+      scratchCtx.fillRect(x, y, 1, 1);
+    }
+  }
+
+  function getLocalPoint(e) {
+    const rect = btn.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function eraseStroke(from, to) {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const distance = Math.hypot(dx, dy);
+    const step = 2;
+    const radius = 10;
+    scratchCtx.globalCompositeOperation = 'destination-out';
+
+    for (let i = 0; i <= distance; i += step) {
+      const t = distance === 0 ? 0 : i / distance;
+      const x = from.x + dx * t;
+      const y = from.y + dy * t;
+      const jitter = (Math.random() - 0.5) * 2.4;
+      const currentRadius = radius + jitter;
+      scratchCtx.beginPath();
+      scratchCtx.arc(x, y, Math.max(6.5, currentRadius), 0, Math.PI * 2);
+      scratchCtx.fill();
+    }
+  }
+
+  btn.addEventListener('mouseenter', (e) => {
+    isScratching = true;
+    lastPoint = getLocalPoint(e);
+    eraseStroke(lastPoint, lastPoint);
+  });
 
   btn.addEventListener('mousemove', (e) => {
-    const rect = span.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    span.style.setProperty('--mx', x + 'px');
-    span.style.setProperty('--my', y + 'px');
+    if (!isScratching) return;
+    const point = getLocalPoint(e);
+    eraseStroke(lastPoint || point, point);
+    lastPoint = point;
   });
 
   btn.addEventListener('mouseleave', () => {
-    span.style.setProperty('--mx', '-100px');
-    span.style.setProperty('--my', '-100px');
+    isScratching = false;
+    lastPoint = null;
   });
 
   window.addEventListener('mousemove', (e) => {
     cursorPointer.style.left = e.clientX + 'px';
     cursorPointer.style.top = e.clientY + 'px';
   });
+
+  resizeScratchMask();
+  window.addEventListener('resize', resizeScratchMask);
 </script>
 
 </body>
