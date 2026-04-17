@@ -6,7 +6,7 @@
 <title>초대합니다 · 몸 만 오 세 요</title>
 <style>
   @font-face {
-    font-family: 'ChosunGs';
+    font-family: 'JoseonPalace';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGs.woff') format('woff');
     font-weight: normal;
     font-style: normal;
@@ -17,11 +17,12 @@
 
   html, body {
     height: 100%;
-    background: #e8e2d8;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'ChosunGs', 'Batang', serif;
+    font-family: 'JoseonPalace', 'Batang', serif;
+    cursor: none;
   }
 
   .frame {
@@ -51,6 +52,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
   }
 
   .heart-group .char {
@@ -59,7 +61,7 @@
     top: 28px;
     width: 72.45px;
     height: 82px;
-    font-size: 68px;
+    font-size: 72px;
     font-weight: 500;
     line-height: 82px;
     text-align: center;
@@ -70,49 +72,162 @@
   /* Bottom section */
   .location-label {
     position: absolute;
-    left: 137px;
-    top: 381px;
-    width: 85px;
+    left: 50%;
+    top: 397px;
+    width: auto;
     height: 28px;
     font-size: 23px;
     font-weight: 500;
     line-height: 28px;
     text-align: center;
     color: #000000;
+    white-space: nowrap;
+    transform: translateX(-50%);
   }
 
   .location-btn {
     position: absolute;
-    left: 56px;
-    top: 418px;
-    width: 249px;
+    left: 50%;
+    top: 434px;
+    width: 300px;
     height: 62px;
-    background: #0D0D0D;
+    background: #0a0a0a;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: crosshair;
+    cursor: none;
     overflow: hidden;
+    isolation: isolate;
+    transform: translateX(-50%) rotate(4deg);
+  }
+
+  .cursor-pointer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+  }
+
+  .location-btn::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+    animation: grainJitter 0.24s steps(2) infinite;
+  }
+
+  .location-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: soft-light;
+    background-image:
+      repeating-linear-gradient(
+        108deg,
+        rgba(255, 255, 255, 0.18) 0px,
+        rgba(255, 255, 255, 0.18) 1px,
+        rgba(255, 255, 255, 0) 2px,
+        rgba(255, 255, 255, 0) 13px
+      ),
+      repeating-linear-gradient(
+        72deg,
+        rgba(255, 255, 255, 0.10) 0px,
+        rgba(255, 255, 255, 0.10) 1px,
+        rgba(255, 255, 255, 0) 2px,
+        rgba(255, 255, 255, 0) 19px
+      ),
+      repeating-linear-gradient(
+        12deg,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.08) 1px,
+        rgba(255, 255, 255, 0) 2px,
+        rgba(255, 255, 255, 0) 27px
+      );
+    animation: scratchDrift 2.2s linear infinite;
+  }
+
+  .location-btn .texture-tint {
+    position: absolute;
+    inset: -10%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.16;
+    mix-blend-mode: color-dodge;
+    background: conic-gradient(
+      from 40deg,
+      #ff4b4b,
+      #ffb84d,
+      #ffe95c,
+      #63e87c,
+      #53c9ff,
+      #6f7dff,
+      #f36bff,
+      #ff4b4b
+    );
+    filter: blur(14px) saturate(1.2);
   }
 
   .location-btn span {
+    position: relative;
+    z-index: 4;
     font-size: 23px;
     font-weight: 500;
     line-height: 28px;
     text-align: center;
-    /* text starts invisible (same color as bg) */
     color: transparent;
-    background: radial-gradient(
-      circle 36px at var(--mx, -100px) var(--my, -100px),
-      #ffffff 0%,
-      #ffffff 40%,
-      #0D0D0D 100%
+    background: linear-gradient(
+      90deg,
+      #ff3131 0%,
+      #ff914d 16%,
+      #ffd93b 32%,
+      #5be584 48%,
+      #37c6ff 64%,
+      #5f7bff 80%,
+      #cc4bff 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    -webkit-mask-image: radial-gradient(
+      circle 38px at var(--mx, -100px) var(--my, -100px),
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 1) 52%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    mask-image: radial-gradient(
+      circle 38px at var(--mx, -100px) var(--my, -100px),
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 1) 52%,
+      rgba(0, 0, 0, 0) 100%
+    );
     transition: none;
     user-select: none;
+  }
+
+  @keyframes grainJitter {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-1px, 1px); }
+    50%  { transform: translate(1px, -1px); }
+    75%  { transform: translate(1px, 1px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  @keyframes scratchDrift {
+    0%   { transform: translateX(0); }
+    50%  { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
   }
 </style>
 </head>
@@ -123,7 +238,7 @@
   <!-- 몸 -->
   <div class="heart-group g1">
     <svg viewBox="0 0 145 157" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="6"/>
     </svg>
     <div class="char">몸</div>
   </div>
@@ -131,7 +246,7 @@
   <!-- 만 -->
   <div class="heart-group g2">
     <svg viewBox="0 0 145 157" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="6"/>
     </svg>
     <div class="char">만</div>
   </div>
@@ -139,7 +254,7 @@
   <!-- 오 -->
   <div class="heart-group g3">
     <svg viewBox="0 0 145 157" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="6"/>
     </svg>
     <div class="char">오</div>
   </div>
@@ -147,7 +262,7 @@
   <!-- 세 -->
   <div class="heart-group g4">
     <svg viewBox="0 0 145 157" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="6"/>
     </svg>
     <div class="char">세</div>
   </div>
@@ -155,24 +270,28 @@
   <!-- 요 -->
   <div class="heart-group g5">
     <svg viewBox="0 0 145 157" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="1.5"/>
+      <path d="M72.5 157C72.5 157 145 107 145 52C145 23.3 120.7 0 96.5 0C83.5 0 72.5 10 72.5 10C72.5 10 61.5 0 48.5 0C24.3 0 0 23.3 0 52C0 107 72.5 157 72.5 157Z" fill="#FFFFFF" stroke="#000000" stroke-width="6"/>
     </svg>
     <div class="char">요</div>
   </div>
 
   <!-- 비밀장소 라벨 -->
-  <div class="location-label">비밀장소</div>
+  <div class="location-label">비밀 접선 장소</div>
 
   <!-- 주소 버튼 -->
   <div class="location-btn">
+    <div class="texture-tint"></div>
     <span>서울특별시 강서구 염창동</span>
   </div>
 
 </div>
 
+<img class="cursor-pointer" src="./cursor-pointer.png" alt="" aria-hidden="true" />
+
 <script>
   const btn = document.querySelector('.location-btn');
   const span = btn.querySelector('span');
+  const cursorPointer = document.querySelector('.cursor-pointer');
 
   btn.addEventListener('mousemove', (e) => {
     const rect = span.getBoundingClientRect();
@@ -185,6 +304,11 @@
   btn.addEventListener('mouseleave', () => {
     span.style.setProperty('--mx', '-100px');
     span.style.setProperty('--my', '-100px');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    cursorPointer.style.left = e.clientX + 'px';
+    cursorPointer.style.top = e.clientY + 'px';
   });
 </script>
 
