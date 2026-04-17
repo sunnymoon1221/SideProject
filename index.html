@@ -111,17 +111,23 @@
     overflow: hidden;
     isolation: isolate;
     transform: translateX(-50%) rotate(4deg);
+    touch-action: none;
   }
 
   .cursor-pointer {
     position: fixed;
     top: 0;
     left: 0;
-    width: 24px;
-    height: 24px;
+    width: 33.6px;
+    height: 33.6px;
     pointer-events: none;
-    transform: translate(-50%, calc(-50% - 8px));
+    transform: translate(-50%, calc(-50% - 8px)) scale(1);
+    transition: transform 120ms ease;
     z-index: 9999;
+  }
+
+  .cursor-pointer.is-pressed {
+    transform: translate(-50%, calc(-50% - 8px)) scale(calc(1 / 1.2));
   }
 
   .location-btn::before {
@@ -336,7 +342,19 @@
 
   function getLocalPoint(e) {
     const rect = btn.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    let clientX;
+    let clientY;
+    if (e.touches && e.touches.length) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
   function eraseStroke(from, to) {
@@ -377,9 +395,45 @@
     lastPoint = null;
   });
 
-  window.addEventListener('mousemove', (e) => {
+  btn.addEventListener('touchstart', (e) => {
+    isScratching = true;
+    lastPoint = getLocalPoint(e);
+    eraseStroke(lastPoint, lastPoint);
+  }, { passive: true });
+
+  btn.addEventListener('touchmove', (e) => {
+    if (!isScratching) return;
+    e.preventDefault();
+    const point = getLocalPoint(e);
+    eraseStroke(lastPoint || point, point);
+    lastPoint = point;
+  }, { passive: false });
+
+  btn.addEventListener('touchend', () => {
+    isScratching = false;
+    lastPoint = null;
+  });
+
+  btn.addEventListener('touchcancel', () => {
+    isScratching = false;
+    lastPoint = null;
+  });
+
+  window.addEventListener('pointermove', (e) => {
     cursorPointer.style.left = e.clientX + 'px';
     cursorPointer.style.top = e.clientY + 'px';
+  });
+
+  window.addEventListener('pointerdown', () => {
+    cursorPointer.classList.add('is-pressed');
+  });
+
+  window.addEventListener('pointerup', () => {
+    cursorPointer.classList.remove('is-pressed');
+  });
+
+  window.addEventListener('pointercancel', () => {
+    cursorPointer.classList.remove('is-pressed');
   });
 
   resizeScratchMask();
